@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake and Ladder</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .board { display: grid; grid-template-columns: repeat(10, 50px); grid-template-rows: repeat(10, 50px); width: 500px; margin: 20px auto; border: 2px solid black; }
+        .cell { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid gray; font-weight: bold; position: relative; }
+        .player { width: 20px; height: 20px; border-radius: 50%; position: absolute; }
+        .player1 { background-color: red; top: 5px; left: 5px; }
+        .player2 { background-color: blue; bottom: 5px; right: 5px; }
+        .dice { margin: 10px auto; font-size: 24px; padding: 10px; border: 2px solid black; display: inline-block; cursor: pointer; background: yellow; }
+    </style>
+</head>
+<body>
+
+    <h1>Snake and Ladder</h1>
+    <div class="board"></div>
+    <div class="dice" onclick="rollDice()">🎲 Roll Dice</div>
+    <p id="turn">Player 1's Turn</p>
+    <p id="message"></p>
+
+    <script>
+        const board = document.querySelector('.board');
+        let positions = {};  // Store player positions
+        let currentPlayer = 1;
+        let snakes = { 27: 7, 35: 5, 50: 10, 75: 32, 99: 1 };
+        let ladders = { 3: 22, 15: 44, 31: 56, 42: 80, 65: 97 };
+
+        function createBoard() {
+            let reverse = false;
+            let num = 100;
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                    let cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.textContent = num;
+                    cell.id = `cell-${num}`;
+                    if ((i + j) % 2 === 0) cell.style.backgroundColor = '#ADD8E6'; // Light Blue
+                    else cell.style.backgroundColor = '#F08080'; // Light Coral
+                    board.appendChild(cell);
+                    num += reverse ? 1 : -1;
+                }
+                reverse = !reverse;
+                num += reverse ? 11 : -9;
+            }
+            addPlayers();
+        }
+
+        function addPlayers() {
+            positions[1] = 1;
+            positions[2] = 1;
+            updatePositions();
+        }
+
+        function rollDice() {
+            let diceValue = Math.floor(Math.random() * 6) + 1;
+            document.querySelector('.dice').textContent = `🎲 ${diceValue}`;
+            movePlayer(diceValue);
+        }
+
+        function movePlayer(diceValue) {
+            let newPosition = positions[currentPlayer] + diceValue;
+            if (newPosition > 100) {
+                switchTurn();
+                return;
+            }
+
+            if (snakes[newPosition]) {
+                document.getElementById('message').textContent = `Oh no! Player ${currentPlayer} bitten by a snake! 🐍`;
+                newPosition = snakes[newPosition];
+            } else if (ladders[newPosition]) {
+                document.getElementById('message').textContent = `Yay! Player ${currentPlayer} climbed a ladder! 🔼`;
+                newPosition = ladders[newPosition];
+            } else {
+                document.getElementById('message').textContent = "";
+            }
+
+            positions[currentPlayer] = newPosition;
+            updatePositions();
+
+            if (newPosition === 100) {
+                document.getElementById('turn').textContent = `🎉 Player ${currentPlayer} Wins! 🎉`;
+                document.querySelector('.dice').onclick = null;
+                return;
+            }
+            switchTurn();
+        }
+
+        function updatePositions() {
+            document.querySelectorAll('.player').forEach(p => p.remove());
+            for (let player in positions) {
+                let cell = document.getElementById(`cell-${positions[player]}`);
+                let playerToken = document.createElement('div');
+                playerToken.classList.add('player', `player${player}`);
+                cell.appendChild(playerToken);
+            }
+        }
+
+        function switchTurn() {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            document.getElementById('turn').textContent = `Player ${currentPlayer}'s Turn`;
+        }
+
+        createBoard();
+    </script>
+
+</body>
+</html>
