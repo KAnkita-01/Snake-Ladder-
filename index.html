@@ -5,6 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snake and Ladder</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+        }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(10, 50px);
+            grid-template-rows: repeat(10, 50px);
+            gap: 2px;
+            margin: 20px auto;
+            width: 520px;
+            border: 2px solid black;
+            background: url('board.png') no-repeat center/cover;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid black;
+            background-color: white;
+            font-weight: bold;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <h1>Snake and Ladder</h1>
@@ -14,7 +49,34 @@
         <button onclick="rollDice()">Roll Dice</button>
         <p>Dice Roll: <span id="dice-result">-</span></p>
     </div>
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const board = document.getElementById("game-board");
+            for (let i = 100; i > 0; i--) {
+                let cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.textContent = i;
+                board.appendChild(cell);
+            }
+        });
+
+        let currentPlayer = 1;
+        let positions = { 1: 1, 2: 1, 3: 1 };
+
+        function rollDice() {
+            let dice = Math.floor(Math.random() * 6) + 1;
+            document.getElementById("dice-result").textContent = dice;
+            movePlayer(currentPlayer, dice);
+            currentPlayer = (currentPlayer % 3) + 1;
+            document.getElementById("current-player").textContent = currentPlayer;
+        }
+
+        function movePlayer(player, steps) {
+            positions[player] += steps;
+            if (positions[player] > 100) positions[player] = 100;
+            console.log(`Player ${player} moves to ${positions[player]}`);
+        }
+    </script>
 </body>
 </html>
 
